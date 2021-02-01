@@ -117,26 +117,25 @@
       })
     },
 
-    flatten: function(collection, shallow) {
-       let holder = []
-      let level = -1
-      function isItAnArray(e){
-        if (Array.isArray(e)){
-          level += 1
-          if (shallow && level >= 2){
-            holder.push(e)
-            return
-          }
-          return fi.each(e, isItAnArray);
-        } else{
-          level -= 1
-          holder.push(e)
+    unpack: function(receiver, array) {
+        for (let value of array) {
+            receiver.push(value);
         }
-      }
+    },
 
-      isItAnArray(collection)
+    flatten: function(collection, shallow, newArray = []) {
+      if (!Array.isArray(collection)) return newArray.push(collection)
 
-      return holder
+        if (shallow) {
+            for (let val of collection)
+                Array.isArray(val) ? this.unpack(newArray, val) : newArray.push(val)
+        } else {
+            for (let val of collection) {
+                this.flatten(val, false, newArray)
+            }
+        }
+
+        return newArray
     },
 
     uniqSorted: function (collection, callback) {
